@@ -1,0 +1,43 @@
+version: '3.8'
+
+networks:
+  spring_network:
+    driver: bridge
+
+volumes:
+  mysql_data:  
+    driver: local
+  maven_cache:  
+    driver: local
+
+services:
+  app:
+    container_name: spring_boot_app
+    build: .
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./src:/app/src 
+      - ./pom.xml:/app/pom.xml  
+      - maven_cache:/root/.m2  
+    networks:
+      - spring_network
+    command: mvn spring-boot:run  
+    depends_on:
+      - db 
+
+  db:
+    image: mysql:8.0
+    container_name: mysql_db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: meu_banco
+      MYSQL_USER: user
+      MYSQL_PASSWORD: senha
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql  
+    networks:
+      - spring_network

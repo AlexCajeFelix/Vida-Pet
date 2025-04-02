@@ -101,7 +101,6 @@ O sistema permitirá:
 5️⃣ **Chat e Acompanhamento**: Comunicação entre donos e veterinários.
 
 ---
-
 ## 🎭 Casos de Uso
 
 ### 🏥 Caso de Uso 1: Agendamento de Consulta

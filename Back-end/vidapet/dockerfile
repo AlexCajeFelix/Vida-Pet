@@ -1,21 +1,17 @@
-# Usando a imagem oficial do OpenJDK
 FROM openjdk:17-jdk-slim
 
-# Definindo o diretório de trabalho dentro do container
 WORKDIR /app
 
-# Copia os arquivos da pasta src para dentro do container
-COPY ./src /app/src
+COPY pom.xml ./
 
-# Copia o restante do projeto (por exemplo, pom.xml ou build.gradle, caso necessário)
-COPY ./pom.xml /app  
-# COPY ./build.gradle /app  # Para Gradle
-
-# Expõe a porta que a aplicação irá rodar
-EXPOSE 8080
-
-# Instala o Maven dentro do container
 RUN apt-get update && apt-get install -y maven
 
-# Comando para rodar a aplicação com hot reload (Spring DevTools)
+RUN mvn dependency:go-offline
+
+COPY src ./src
+
+RUN mvn package -DskipTests
+
+EXPOSE 8080
+
 CMD ["mvn", "spring-boot:run"]

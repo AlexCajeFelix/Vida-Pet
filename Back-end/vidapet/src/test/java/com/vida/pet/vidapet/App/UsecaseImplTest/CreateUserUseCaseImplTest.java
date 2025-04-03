@@ -24,8 +24,6 @@ import com.vida.pet.vidapet.Core.Entities.User;
 import com.vida.pet.vidapet.Infra.Persistence.RoleRepository;
 import com.vida.pet.vidapet.Infra.Persistence.UserRepository;
 
-import net.bytebuddy.asm.Advice.Argument;
-
 public class CreateUserUseCaseImplTest {
 
     @InjectMocks

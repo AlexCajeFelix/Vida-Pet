@@ -1,8 +1,9 @@
 package com.vida.pet.vidapet.Core.UseCases;
 
 import com.vida.pet.vidapet.App.Dtos.UserDto;
+import com.vida.pet.vidapet.Core.Entities.User;
 
 public interface CreateUserUseCase {
-    public void save(UserDto userDto);
+    public User save(UserDto userDto);
 
 }

@@ -9,8 +9,8 @@ services:
     image: mysql:8.0 
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: THE_PASSWORD
-      MYSQL_DATABASE: vidapet
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: vidapet_db
       MYSQL_USER: springuser
       MYSQL_PASSWORD: root
     ports:
@@ -26,7 +26,7 @@ services:
     depends_on:
       - db
     environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/vidapet?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/vidapet_db?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
       SPRING_DATASOURCE_USERNAME: springuser
       SPRING_DATASOURCE_PASSWORD: root
       SPRING_PROFILES_ACTIVE: dev

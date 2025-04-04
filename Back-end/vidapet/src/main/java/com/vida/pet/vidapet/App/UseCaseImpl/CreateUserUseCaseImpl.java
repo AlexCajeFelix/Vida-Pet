@@ -1,14 +1,15 @@
 package com.vida.pet.vidapet.App.UseCaseImpl;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import com.vida.pet.vidapet.App.Dtos.UserDto;
+import com.vida.pet.vidapet.App.Enum.RoleEnum;
+import com.vida.pet.vidapet.App.Mapper.UserMapper;
 import com.vida.pet.vidapet.Core.Entities.Roles;
 import com.vida.pet.vidapet.Core.Entities.User;
 import com.vida.pet.vidapet.Core.Exeptions.RoleNotFoundException;
+import com.vida.pet.vidapet.Core.Exeptions.CreateUserNotFoundException;
 import com.vida.pet.vidapet.Core.UseCases.CreateUserUseCase;
 import com.vida.pet.vidapet.Infra.Persistence.RoleRepository;
 import com.vida.pet.vidapet.Infra.Persistence.UserRepository;
@@ -22,53 +23,44 @@ public class CreateUserUseCaseImpl implements CreateUserUseCase {
 
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
+    private final UserMapper userMapper;
 
-    public CreateUserUseCaseImpl(UserRepository userRepository, RoleRepository roleRepository) {
+    public CreateUserUseCaseImpl(UserRepository userRepository, RoleRepository roleRepository, UserMapper userMapper) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
-    }
+        this.userMapper = userMapper;
 
-    @Override
-    public User save(UserDto userDto) {
-        log.info(" Tratando usuario: {}", userDto);
-
-        User user = convertUser(userDto);
-        return userRepository.save(user);
     }
 
     @Transactional
+    @Override
+    public User createUser(UserDto userDto) {
+        verifiedUserExists(userDto);
+        User user = convertUser(userDto);
+        log.info("Usuário criado com sucesso: {}", user);
+        return userRepository.save(user);
+
+    }
+
     public User convertUser(UserDto userDto) {
-        try {
-            log.info(" verificando a role do usuario: {}", userDto);
-
-            List<String> roleNames = List.of("ROLE_USER");
-            Set<Roles> roles = roleRepository.findByNameIn(roleNames).stream()
-                    .collect(Collectors.toCollection(HashSet::new));
-
-            log.info(" recuperando as roles: {}", roles);
-
-            if (roles.isEmpty()) {
-                log.error("Role não existe no banco");
-                throw new RoleNotFoundException("Role nao encontrada no banco");
-            }
-
-            log.info(" Criando o usuario: {}", userDto);
-
-            User user = new User(userDto);
-
-            log.info(" SETANDO as roles: {}", roles);
-
-            user.setRoles(roles);
-
-            log.info(" Usuário criado: {}", user);
-
-            return user;
-
-        } catch (RoleNotFoundException e) {
-            e.printStackTrace();
-            return null;
+        Roles roleUser = roleRepository.findByName(RoleEnum.ROLE_USER.name())
+                .orElseThrow(() -> new RoleNotFoundException("Role não encontrada no banco!"));
+        User user = userMapper.toEntity(userDto, new HashSet<>(Set.of(roleUser)));
+        user.setRoles(new HashSet<>(Set.of(roleUser)));
+        if (user.getRoles() == null || user.getRoles().isEmpty()) {
+            log.error("Usuário sem role: {}", user);
+            throw new CreateUserNotFoundException("Usuário sem role: " + user);
         }
 
+        return user;
+    }
+
+    private void verifiedUserExists(UserDto userDto) {
+        userRepository.findByUsernameWithRoles(userDto.username())
+                .ifPresent(user -> {
+                    log.warn("Usuário '{}' já cadastrado!", userDto.username());
+                    throw new CreateUserNotFoundException("Usuário já cadastrado!");
+                });
     }
 
 }

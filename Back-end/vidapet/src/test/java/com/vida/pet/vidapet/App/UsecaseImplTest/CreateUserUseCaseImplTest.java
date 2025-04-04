@@ -1,9 +1,11 @@
 package com.vida.pet.vidapet.App.UsecaseImplTest;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import java.util.HashSet;
@@ -15,7 +17,7 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
+
 import com.vida.pet.vidapet.App.Dtos.UserDto;
 import com.vida.pet.vidapet.App.UseCaseImpl.CreateUserUseCaseImpl;
 import com.vida.pet.vidapet.Core.Entities.Roles;
@@ -58,22 +60,47 @@ public class CreateUserUseCaseImplTest {
     public void saveUserShouldUserisvalid() {
         UserDto userDto = new UserDto("testuser231", "test321@example.com", "senha123", true);
 
-        Mockito.when(roleRepository.findByName("ROLE_USER")).thenReturn(Optional.of(roleUser));
+        when(userRepository.findByUsernameWithRoles(userDto.username())).thenReturn(Optional.empty());
         when(userRepository.save(any(User.class))).thenReturn(user);
+        when(roleRepository.findByName("ROLE_USER")).thenReturn(Optional.of(roleUser));
 
-        createUserUseCaseImpl.save(userDto);
+        createUserUseCaseImpl.createUser(userDto);
 
         ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
         verify(userRepository).save(userCaptor.capture());
-
         User capturedUser = userCaptor.getValue();
-
         assertTrue(capturedUser.getRoles().stream().anyMatch(r -> r.getName().equals("ROLE_USER")));
-
         assertEquals("testuser231", capturedUser.getUsername());
+        verify(userRepository, times(1)).save(any(User.class));
 
-        assertNotEquals(userDto.username(), capturedUser.getUsername());
+    }
 
+    @Test
+    public void shouldNotSaveUserWhenUserIsInvalid() {
+        UserDto userDto = new UserDto("", "invalido@example.com", "senha123", true); // Nome inválido
+
+        when(userRepository.findByUsernameWithRoles(userDto.username())).thenReturn(Optional.empty());
+        when(roleRepository.findByName("ROLE_USER")).thenReturn(Optional.of(roleUser));
+
+        assertThrows(IllegalArgumentException.class, () -> {
+            createUserUseCaseImpl.createUser(userDto);
+        });
+
+        verify(userRepository, never()).save(any(User.class));
+    }
+
+    @Test
+    public void shouldNotSaveUserWhenEmailIsInvalid() {
+        UserDto userDto = new UserDto("testuser", "invalido@example", "senha123", true); // Email inválido
+
+        when(userRepository.findByUsernameWithRoles(userDto.username())).thenReturn(Optional.empty());
+        when(roleRepository.findByName("ROLE_USER")).thenReturn(Optional.of(roleUser));
+
+        assertThrows(IllegalArgumentException.class, () -> {
+            createUserUseCaseImpl.createUser(userDto);
+        });
+
+        verify(userRepository, never()).save(any(User.class));
     }
 
 }

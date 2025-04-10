@@ -1,0 +1,37 @@
+version: '3.8'
+
+networks:
+  springboot-network:
+
+services:
+  db:
+    container_name: mysql
+    image: mysql:8.0 
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: vidapet_db
+      MYSQL_USER: springuser
+      MYSQL_PASSWORD: root
+    ports:
+      - "3306:3306"
+    networks:
+      - springboot-network
+
+  app:
+    container_name: app
+    build: .
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/vidapet_db?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+      SPRING_DATASOURCE_USERNAME: springuser
+      SPRING_DATASOURCE_PASSWORD: root
+      SPRING_PROFILES_ACTIVE: dev
+    volumes:
+      - .:/app  
+      - ~/.m2:/root/.m2  
+    networks:
+      - springboot-network

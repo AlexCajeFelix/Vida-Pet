@@ -1,3 +1,4 @@
+
 package com.vida.pet.vidapet.Core.Entities;
 
 import jakarta.persistence.*;
@@ -15,6 +16,8 @@ import java.util.Set;
 public class Roles {
 
     //
+
+    // teste
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
 

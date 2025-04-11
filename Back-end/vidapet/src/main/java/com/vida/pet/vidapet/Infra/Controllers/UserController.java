@@ -10,8 +10,9 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import com.vida.pet.vidapet.App.Dtos.UserDto;
 import com.vida.pet.vidapet.App.Dtos.UserResponseCreatedDto;
-import com.vida.pet.vidapet.Core.Entities.User;
-import com.vida.pet.vidapet.Core.UseCases.CreateUserUseCase;
+import com.vida.pet.vidapet.Core.Domain.Entities.User;
+import com.vida.pet.vidapet.Core.Domain.UseCases.CreateUserUseCase;
+
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 

@@ -5,8 +5,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import com.vida.pet.vidapet.Core.Exeptions.RoleNotFoundException;
-import com.vida.pet.vidapet.Core.Exeptions.CreateUserNotFoundException;
+import com.vida.pet.vidapet.Core.Domain.Exeptions.CreateUserNotFoundException;
+import com.vida.pet.vidapet.Core.Domain.Exeptions.RoleNotFoundException;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {

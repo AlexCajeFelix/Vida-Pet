@@ -1,55 +1,43 @@
-package com.vida.pet.vidapet.Core.Entities;
+package com.vida.pet.vidapet.Core.Domain.Entities;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
 import com.vida.pet.vidapet.App.Dtos.UserDto;
+import com.vida.pet.vidapet.Core.Domain.BaseEntity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Entity
 @Table(name = "users")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class User {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+@Entity
+public class User extends BaseEntity<User> {
 
     @Column(nullable = false, unique = true)
-    @NotBlank(message = "Username cannot be blank")
     private String username;
 
     @Column(nullable = false, unique = true)
-    @NotBlank(message = "Email cannot be blank")
-    @Email(message = "Email should be valid")
     private String email;
 
     @Column(nullable = false, length = 60)
-    @NotBlank(message = "Password cannot be blank")
     private String password;
 
     @Column(nullable = false)
-
     private Boolean enabled = true;
 
     @Column(nullable = false, updatable = false)
@@ -66,11 +54,37 @@ public class User {
     }
 
     public User(UserDto userDto) {
+
         this.username = userDto.username();
         this.email = userDto.email();
         this.password = userDto.password();
         this.enabled = userDto.enabled();
         this.roles = new HashSet<>();
 
+        verify();
     }
+
+    private void verify() {
+        if (this.username == null || this.username.isBlank()) {
+            throw new IllegalArgumentException("Username cannot be null or blank");
+        }
+        if (this.email == null || this.email.isBlank()) {
+            throw new IllegalArgumentException("Email cannot be null or blank");
+        }
+        if (this.password == null || this.password.isBlank()) {
+            throw new IllegalArgumentException("Password cannot be null or blank");
+        }
+
+        if (this.enabled == null) {
+            throw new IllegalArgumentException("Enabled cannot be null");
+        }
+    }
+
+    public Boolean deactiveUser() {
+        if (this.enabled == null) {
+            throw new IllegalArgumentException("Enabled cannot be null");
+        }
+        return this.enabled = false;
+    }
+
 }

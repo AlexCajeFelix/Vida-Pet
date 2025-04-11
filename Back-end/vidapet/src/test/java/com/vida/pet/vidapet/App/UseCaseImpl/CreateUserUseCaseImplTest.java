@@ -1,4 +1,5 @@
-package com.vida.pet.vidapet.App.UsecaseImplTest;
+
+package com.vida.pet.vidapet.App.UseCaseImpl;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -8,6 +9,8 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
+import java.lang.reflect.Field;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
@@ -19,9 +22,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 
 import com.vida.pet.vidapet.App.Dtos.UserDto;
-import com.vida.pet.vidapet.App.UseCaseImpl.CreateUserUseCaseImpl;
-import com.vida.pet.vidapet.Core.Entities.Roles;
-import com.vida.pet.vidapet.Core.Entities.User;
+
+import com.vida.pet.vidapet.Core.Domain.Entities.Roles;
+import com.vida.pet.vidapet.Core.Domain.Entities.User;
 
 import com.vida.pet.vidapet.Infra.Persistence.RoleRepository;
 import com.vida.pet.vidapet.Infra.Persistence.UserRepository;
@@ -40,18 +43,24 @@ public class CreateUserUseCaseImplTest {
     private Roles roleUser;
 
     @Before
-    void setUp() {
+    void setUp() throws NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException {
 
         user = new User();
-        user.setId(1L);
+
         user.setUsername("username");
         user.setEmail("email@gmail.com");
         user.setPassword("password");
         user.setEnabled(true);
 
+        Field idField = User.class.getSuperclass().getDeclaredField("id");
+        idField.setAccessible(true);
+        idField.set(user, 1L);
+
         roleUser = new Roles();
-        roleUser.setId(1L);
+
         roleUser.setName("ROLE_USER");
+
+        idField.set(roleUser, 1L);
 
         user.setRoles(new HashSet<>(Set.of(roleUser)));
     }
@@ -78,7 +87,6 @@ public class CreateUserUseCaseImplTest {
     @Test
     public void shouldNotSaveUserWhenUserIsInvalid() {
         UserDto userDto = new UserDto("", "invalido@example.com", "senha123", true); // Nome inválido
-
         when(userRepository.findByUsernameWithRoles(userDto.username())).thenReturn(Optional.empty());
         when(roleRepository.findByName("ROLE_USER")).thenReturn(Optional.of(roleUser));
 

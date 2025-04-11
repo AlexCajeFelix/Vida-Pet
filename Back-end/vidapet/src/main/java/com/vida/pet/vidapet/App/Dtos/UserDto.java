@@ -1,6 +1,6 @@
 package com.vida.pet.vidapet.App.Dtos;
 
-import com.vida.pet.vidapet.Core.Entities.User;
+import com.vida.pet.vidapet.Core.Domain.Entities.User;
 
 public record UserDto(
         String username,

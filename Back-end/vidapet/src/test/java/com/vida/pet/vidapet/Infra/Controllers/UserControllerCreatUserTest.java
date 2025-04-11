@@ -1,4 +1,4 @@
-package com.vida.pet.vidapet.Infra.Controller;
+package com.vida.pet.vidapet.Infra.Controllers;
 
 import java.util.Set;
 import java.util.HashSet;
@@ -16,10 +16,10 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vida.pet.vidapet.App.Dtos.UserDto;
-import com.vida.pet.vidapet.Core.Entities.Roles;
-import com.vida.pet.vidapet.Core.Entities.User;
-import com.vida.pet.vidapet.Core.Exeptions.CreateUserNotFoundException;
-import com.vida.pet.vidapet.Core.Exeptions.RoleNotFoundException;
+import com.vida.pet.vidapet.Core.Domain.Entities.Roles;
+import com.vida.pet.vidapet.Core.Domain.Entities.User;
+import com.vida.pet.vidapet.Core.Domain.Exeptions.CreateUserNotFoundException;
+import com.vida.pet.vidapet.Core.Domain.Exeptions.RoleNotFoundException;
 import com.vida.pet.vidapet.Infra.Persistence.RoleRepository;
 import com.vida.pet.vidapet.Infra.Persistence.UserRepository;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -33,6 +33,7 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import java.lang.reflect.Field;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -53,19 +54,20 @@ public class UserControllerCreatUserTest {
     private User user;
     private Roles roleUser;
 
-    // test de integração
-
     @BeforeEach
-    void setUp() {
+    void setUp() throws NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException {
         user = new User();
-        user.setId(1L);
+
         user.setUsername("username");
         user.setEmail("email@gmail.com");
         user.setPassword("password");
         user.setEnabled(true);
+        Field idField = User.class.getSuperclass().getDeclaredField("id");
+        idField.setAccessible(true);
+        idField.set(user, 1L);
 
         roleUser = new Roles();
-        roleUser.setId(1L);
+
         roleUser.setName("ROLE_USER");
 
         user.setRoles(new HashSet<>(Set.of(roleUser)));

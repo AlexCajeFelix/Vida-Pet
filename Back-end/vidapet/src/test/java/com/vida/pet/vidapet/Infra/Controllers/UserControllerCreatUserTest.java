@@ -62,7 +62,7 @@ public class UserControllerCreatUserTest {
         user.setEmail("email@gmail.com");
         user.setPassword("password");
         user.setEnabled(true);
-        Field idField = User.class.getSuperclass().getDeclaredField("id");
+        Field idField = User.class.getSuperclass().getSuperclass().getSuperclass().getDeclaredField("id");
         idField.setAccessible(true);
         idField.set(user, 1L);
 

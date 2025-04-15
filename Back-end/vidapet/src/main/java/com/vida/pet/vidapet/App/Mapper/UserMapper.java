@@ -12,13 +12,7 @@ import com.vida.pet.vidapet.Core.Domain.Entities.User;
 public class UserMapper {
 
     public User toEntity(UserDto userDto, Set<Roles> roles) {
-        User user = new User();
-        user.setUsername(userDto.username());
-        user.setEmail(userDto.email());
-        user.setPassword(userDto.password());
-        user.setEnabled(userDto.enabled());
-        user.setRoles(roles);
-        return user;
+        return new User(userDto, roles);
     }
 
     public UserDto toDto(User user) {

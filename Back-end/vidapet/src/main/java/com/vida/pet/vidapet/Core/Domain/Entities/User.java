@@ -3,10 +3,8 @@ package com.vida.pet.vidapet.Core.Domain.Entities;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
-
 import com.vida.pet.vidapet.App.Dtos.UserDto;
-import com.vida.pet.vidapet.Core.Domain.BaseEntity;
-
+import com.vida.pet.vidapet.Core.Domain.AggregateRoot;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -15,6 +13,7 @@ import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -26,15 +25,18 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-public class User extends BaseEntity<User> {
+public class User extends AggregateRoot<User> {
 
+    @NotBlank(message = "Coloque o username")
     @Column(nullable = false, unique = true)
     private String username;
 
     @Column(nullable = false, unique = true)
+    @NotBlank
     private String email;
 
     @Column(nullable = false, length = 60)
+    @NotBlank
     private String password;
 
     @Column(nullable = false)
@@ -61,23 +63,18 @@ public class User extends BaseEntity<User> {
         this.enabled = userDto.enabled();
         this.roles = new HashSet<>();
 
-        verify();
     }
 
-    private void verify() {
-        if (this.username == null || this.username.isBlank()) {
-            throw new IllegalArgumentException("Username cannot be null or blank");
+    public User(UserDto userDto, Set<Roles> roles) {
+        if (roles == null || roles.isEmpty()) {
+            throw new IllegalArgumentException("Roles cannot be null or empty");
         }
-        if (this.email == null || this.email.isBlank()) {
-            throw new IllegalArgumentException("Email cannot be null or blank");
-        }
-        if (this.password == null || this.password.isBlank()) {
-            throw new IllegalArgumentException("Password cannot be null or blank");
-        }
+        this.username = userDto.username();
+        this.email = userDto.email();
+        this.password = userDto.password();
+        this.enabled = userDto.enabled();
+        this.roles = roles;
 
-        if (this.enabled == null) {
-            throw new IllegalArgumentException("Enabled cannot be null");
-        }
     }
 
     public Boolean deactiveUser() {

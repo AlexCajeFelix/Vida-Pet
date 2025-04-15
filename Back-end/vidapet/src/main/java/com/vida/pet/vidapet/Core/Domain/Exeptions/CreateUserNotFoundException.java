@@ -1,7 +1,7 @@
 package com.vida.pet.vidapet.Core.Domain.Exeptions;
 
 public class CreateUserNotFoundException extends RuntimeException {
-    public CreateUserNotFoundException(String message) {
+    public CreateUserNotFoundException(final String message) {
         super(message);
     }
 }
